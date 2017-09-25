@@ -1,0 +1,6 @@
+You can opt to add extra modules in this folder. See http://git.333networks.com/ for more.
+
+Currently available modules:
+  Extra/KFstats.pm  - Killing Floor statistics for the UT2004 mod
+  Extra/JSON.pm     - JSON API to allow access to the Json interface (included)
+  UpdateServer.pm   - UpdateServer compatibility for a variety of games

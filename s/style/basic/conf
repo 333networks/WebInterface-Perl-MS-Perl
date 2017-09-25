@@ -1,0 +1,28 @@
+// Basic greyscale theme with 333networks logo
+// see util/skingen/colortypes.txt for descriptions of colors.
+
+name      basic
+author    Darkelarious
+
+bodybg    #fff
+bglogo    333networks.png
+
+boxbg1    #ccc
+boxbg2    #999
+boxbg3    #aaa
+
+shadow    #999
+
+textcol1  #000
+textcol2  #222
+
+headercol #000
+themecol1 #000
+themecol2 #555
+themecol3 #222
+
+link      #33f
+linkhover #f33
+
+
+
