@@ -1,0 +1,14 @@
+AUTHOR
+  Darkelarious
+  http://333networks.com
+  darkelarious@333networks.com
+
+CHANGELOG
+3.0.1 - 27 Sep 2017
+  * do not display blacklisted servers in serverlists
+  * show colored tags for direct uplinks, blacklisted- and passworded servers
+
+3.0.0 - 25 Sep 2017
+  * point of reference
+  * structural rework to be compatible with MasterServer-Perl >= 2.4.0
+  * continuation from MasterServer-SimpleInterface

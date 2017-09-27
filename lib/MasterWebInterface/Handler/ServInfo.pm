@@ -206,9 +206,9 @@ sub show_server {
       Tr;
         td "Flags: ";
         td;
-          i ($info->{b333ms}      ? "direct uplink, " : "applet or manual, ");
-          i ($info->{blacklisted} ? "blacklisted, "   : "not blacklisted, ");
-          i ($info->{password}    ? "passworded"      : "not passworded");
+          ($info->{b333ms}      ? span class => "g", "direct uplink, " : span class => "o", "applet or manual, ");
+          ($info->{blacklisted} ? span class => "r", "blacklisted, "   : span class => "g", "not blacklisted, ");
+          ($info->{password}    ? span class => "y", "passworded"      : span class => "g", "not passworded");
         end;
       end;
     end;

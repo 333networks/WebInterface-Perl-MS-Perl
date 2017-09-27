@@ -45,6 +45,8 @@ sub dbServerListGet {
       ? ('hostname ILIKE ?' => "%$o{search}%") : (),
     $o{updated} 
       ? ('serverlist.updated > to_timestamp(?)' => (time-$o{updated}) ) : (),
+    $o{filter}
+      ? ('blacklisted = CAST(? AS BOOLEAN)' => 0) : (),
     ('length(hostname) > ?' => 1),  # don't allow empty hostnames
     ('hostport > ?' => 0),          # or games with empty hostport
   );

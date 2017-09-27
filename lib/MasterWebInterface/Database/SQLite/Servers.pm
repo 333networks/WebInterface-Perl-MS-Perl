@@ -43,6 +43,8 @@ sub dbServerListGet {
       ? ('lower(hostname) LIKE lower(?)' => "%$o{search}%") : (),
     $o{updated}  
       ? ('serverlist.updated > datetime(?, \'unixepoch\')' => (time-$o{updated})) : (),
+    $o{filter}
+      ? ('blacklisted = ?' => 0) : (),
 #    ('length(hostname) > ?' => 1),  # don't show empty hostnames
     ('hostport > ?' => 0),          # or games with empty hostport
   );

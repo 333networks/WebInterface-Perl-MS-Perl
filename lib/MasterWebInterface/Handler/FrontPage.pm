@@ -28,7 +28,7 @@ sub main {
   $self->htmlHeader(title => "Welcome");
   
   # load NEW SERVERS list from database
-  my ($list, $np, $p) = $self->dbServerListGet(results => 8, sort => 'added', reverse => 1);
+  my ($list, $np, $p) = $self->dbServerListGet(results => 8, sort => 'added', reverse => 1, filter => 1);
   my $odd = 0;
   
   # print list of new servers added to the database

@@ -29,9 +29,9 @@ sub version {
 
     p "This MasterServer Interface has the following version information:";
     table;
-      Tr; td "build_type";    td "333networks Masterserver Development Interface ";end;
-      Tr; td "build_version"; td "3.0.0";end;
-      Tr; td "build_date";    td "2017-09-25";end;
+      Tr; td "build_type";    td "333networks Masterserver Web Interface ";end;
+      Tr; td "build_version"; td "3.0.1";end;
+      Tr; td "build_date";    td "2017-09-27";end;
       Tr; td "build_author";  td "Darkelarious, darkelarious\@333networks.com";end;
     end;    
     

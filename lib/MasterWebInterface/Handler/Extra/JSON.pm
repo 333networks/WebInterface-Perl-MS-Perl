@@ -38,6 +38,7 @@ sub serverlist_json {
     search => $f->{q},
     gamename => $gamename,
     page => $f->{p},
+    filter => 1,
   );
 
   # return json data as the response
