@@ -20,6 +20,7 @@ TUWF::set(
   logfile               => "$ROOT/log/MasterWebInterface-TUWF.log",
   mail_from             => '<noreply@333networks.com>',
   db_login              => ['dbi:Pg:dbname=devmasterserver', 'unrealmaster', 'unrealmasterpassword'],
+# db_login              => ["dbi:SQLite:dbname=$ROOT/data/databasename.db",'',''], 
   validate_templates => { # input templates
     page  => { template => 'uint', max => 1000 },
   },

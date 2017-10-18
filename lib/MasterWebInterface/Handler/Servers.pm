@@ -39,6 +39,7 @@ sub serverlist {
     search => $f->{q},
     gamename => $gamename,
     page => $f->{p},
+    filter => 1,
   );
   
   # game name description in title
@@ -94,7 +95,7 @@ sub serverlist {
         td class => "tc3", title => $l->{description}; a href => "/s/$l->{gamename}", $l->{gamename};end;
         td class => "tc4", title => $l->{gametype}, $l->{gametype};
         td class => "tc5"; txt $l->{numplayers}; txt "/"; txt $l->{maxplayers}; end;
-        td class => "tc6", title => ( $l->{maptitle} || $l->{mapname}), ($l->{maptitle} || $l->{mapname});
+        td class => "tc6", title => ( $l->{maptitle} || $l->{mapname} || "Unknown"), ($l->{maptitle} || $l->{mapname} || "Unknown");
       end;
     },
   );
