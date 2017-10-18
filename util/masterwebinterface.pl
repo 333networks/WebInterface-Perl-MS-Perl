@@ -25,15 +25,15 @@ TUWF::set(
     page  => { template => 'uint', max => 1000 },
   },
   xml_pretty            => 0,
-  log_queries           => 1,
-  debug                 => 1,
+  log_queries           => 0,
+  debug                 => 0,
 );
 
 # load master page libs
 TUWF::load_recursive('MasterWebInterface::Handler',
                      'MasterWebInterface::Util',
                      'MasterWebInterface::Database::Pg',
-                     #'MasterWebInterface::Database::sqlite',
+                     #'MasterWebInterface::Database::SQLite',
                     ); # Do not forget to choose the database type here!
 #and let's roll!
 TUWF::run();
