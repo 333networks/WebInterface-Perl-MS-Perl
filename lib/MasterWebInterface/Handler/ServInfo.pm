@@ -94,8 +94,12 @@ sub show_server {
         
         # get prefix and mapname
         my $mapname = lc $info->{mapname};
-        my ($pre,$post) = $mapname =~ /^(DM|CTF\-BT|BT|CTF|DOM|AS|JB|TO|SCR|MH)-(.*)/i;
-        my $prefix = ($pre ? uc $pre : "other");        
+        my ($pre,$post);
+           ($pre,$post) = $mapname =~ /^(DM|CTF\-BT|BT|CTF|DOM|AS|JB|TO|SCR|MH)-(.*)/i if ($info->{gamename} eq "ut");
+           ($pre,$post) = $mapname =~ /^(as|ar|coop|coop\d+|ctt|dk|dm|hb|nd)-(.*)/i    if ($info->{gamename} eq "rune");
+
+        $pre =~ s/(coop\d+)/coop/i;
+        my $prefix = ($pre ? uc $pre : "other");
         
         # if map figure exists, use it
         if (-e "$self->{map_dir}/$info->{gamename}/$prefix/$mapname.jpg") {

@@ -4,6 +4,9 @@ AUTHOR
   darkelarious@333networks.com
 
 CHANGELOG
+3.0.2
+  * support for rune map thumbnails
+
 3.0.1 - 27 Sep 2017
   * do not display blacklisted servers in serverlists
   * show colored tags for direct uplinks, blacklisted- and passworded servers

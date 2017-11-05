@@ -30,6 +30,7 @@ REQUIREMENTS
       DBI
       DBD::Pg / DBD::SQLite / DBD::mysql
       IP::Country::Fast
+      Image::Size
       TUWF (http://dev.yorhel.nl/tuwf)
 
 INSTALL
