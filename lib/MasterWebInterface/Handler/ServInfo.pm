@@ -99,7 +99,8 @@ sub show_server {
            ($pre,$post) = $mapname =~ /^(as|ar|coop|coop\d+|ctt|dk|dm|hb|nd)-(.*)/i    if ($info->{gamename} eq "rune");
            ($pre,$post) = $mapname =~ /^(MPDGT|MPS)-(.*)/i                             if ($info->{gamename} eq "postal2");
 
-        $pre =~ s/(coop\d+)/coop/i;
+        # special cases
+        $pre = "coop" if ($pre && $pre =~ m/(coop\d+)/i );
         my $prefix = ($pre ? uc $pre : "other");
         
         # if map figure exists, use it
@@ -228,7 +229,9 @@ sub show_server {
       end;
       Tr;
         td "Game:"; 
-        td $info->{description} || $gamename;
+        td;
+          a href => "/s/$gamename/all", ($info->{description} || $gamename);
+        end;
       end;
       if ($info->{gametype}) {
         Tr;
@@ -272,7 +275,7 @@ sub show_server {
                    1 => "#66e",
                    2 => "#6e6",
                    3 => "#ee6",
-                   4 => "#fe6" );
+                   4 => "#fe6");
 
       # loop through players and print them in a nicely formatted table with funky colors    
       Tr; 
@@ -284,8 +287,12 @@ sub show_server {
       end;
       
       for (my $i=0; defined $player->[$i]->{player}; $i++) {
-        Tr $i % 2 ? (class => 'odd') : (), style => 'color:'.$team{$player->[$i]->{team}} || "#aaa";
-          td class => "wc1",   $player->[$i]->{player} . (($player->[$i]->{ngsecret} =~ m/^bot$/i) ? " (bot)" : "");
+        # determine teamcolor
+        my $teamcolor = "#aaa";
+           $teamcolor = $team{$player->[$i]->{team}} if ($player->[$i]->{team} =~ m/^([0-4]|255)$/i);
+      
+        Tr $i % 2 ? (class => 'odd') : (), style => 'color:'.$teamcolor;
+          td class => "wc1",   $player->[$i]->{player} . (($player->[$i]->{ngsecret} && $player->[$i]->{ngsecret} =~ m/^bot$/i) ? " (bot)" : "");
           td class => "frags", $player->[$i]->{frags};
           td class => "mesh",  $player->[$i]->{mesh};
           td class => "skin",  $player->[$i]->{skin};

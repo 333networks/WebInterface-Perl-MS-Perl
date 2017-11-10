@@ -30,7 +30,7 @@ sub version {
     p "This MasterServer Interface has the following version information:";
     table;
       Tr; td "build_type";    td "333networks Masterserver Web Interface ";end;
-      Tr; td "build_version"; td "3.0.3";end;
+      Tr; td "build_version"; td "3.0.4";end;
       Tr; td "build_date";    td "2017-11-10";end;
       Tr; td "build_author";  td "Darkelarious, darkelarious\@333networks.com";end;
     end;    
