@@ -1,4 +1,4 @@
-package MasterWebInterface::Handler::ServInfo;
+package MasterInterface::Handler::ServInfo;
 use strict;
 use warnings;
 use utf8;
@@ -97,6 +97,7 @@ sub show_server {
         my ($pre,$post);
            ($pre,$post) = $mapname =~ /^(DM|CTF\-BT|BT|CTF|DOM|AS|JB|TO|SCR|MH)-(.*)/i if ($info->{gamename} eq "ut");
            ($pre,$post) = $mapname =~ /^(as|ar|coop|coop\d+|ctt|dk|dm|hb|nd)-(.*)/i    if ($info->{gamename} eq "rune");
+           ($pre,$post) = $mapname =~ /^(MPDGT|MPS)-(.*)/i                             if ($info->{gamename} eq "postal2");
 
         $pre =~ s/(coop\d+)/coop/i;
         my $prefix = ($pre ? uc $pre : "other");
