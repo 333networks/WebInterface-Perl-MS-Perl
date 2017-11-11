@@ -8,8 +8,39 @@ TUWF::register(
   qr{json/(.[\w]*)}                 => \&serverlist_json,
   qr{json/(.[\w]*)/(all|[0a-z])}    => \&serverlist_json,
   qr{json/(.[\w]*)/([\.\w]+):(\d+)} => \&json_serverinfo,
+  qr{json/(.[\w]*)/motd}            => \&json_motd,
   qr{json}                          => \&json_docs,
 );
+
+################################################################################
+# MOTD
+################################################################################
+sub json_motd {
+  my ($self, $gamename) = @_;
+  
+  # gamename defined
+  my $gn_desc = $self->dbGetGameDesc($gamename) || $gamename;
+  
+  my $html = $self->motd_static($gn_desc);
+  
+  # get numServers
+  my ($l,$x,$s) = $self->dbServerListGet(
+    gamename => $gamename, 
+    results  => 1000,
+    filter => 1
+  );
+  
+  my $p = 0;
+  for (@{$l}) {$p += $_->{numplayers}}
+  
+  # return json data as the response
+  my $json_data = encode_json [{motd => $html}, {total => $s, players => $p}];
+  print { $self->resFd() } $json_data;
+
+  # set content type and allow off-domain access (for example jQuery)
+  $self->resHeader("Access-Control-Allow-Origin", "*");
+  $self->resHeader("Content-Type", "application/json; charset=UTF-8");
+}
 
 ################################################################################
 # LIST SERVERS
@@ -24,25 +55,40 @@ sub serverlist_json {
 
   # process additional query information, such as order, sorting, page, etc
   my $f = $self->formValidate(
+    { get => 's', required => 0, default => 'diff', enum => [ qw| country hostname gametype ip hostport numplayers mapname | ] },
+    { get => 'o', required => 0, default => 'a', enum => [ 'a','d' ] },
     { get => 'p', required => 0, default => 1,   template => 'page' },
     { get => 'r', required => 0, default => 100, template => 'page' },
     { get => 'q', required => 0, default => '',  maxlength => 90 },
+    { get => 'g', required => 0, default => '',  maxlength => 90 },
   );
   return $self->resNotFound if $f->{_err};
 
   # load server list from database
   my($list, $np, $p) = $self->dbServerListGet(
     reverse => $f->{o} eq 'd',
+    sort => $f->{s}, 
     $char ne 'all' ? ( firstchar => $char ) : (),
     results => $f->{r},
     search => $f->{q},
     gamename => $gamename,
     page => $f->{p},
+    gametype => $f->{g},
     filter => 1,
   );
 
+  # get numServers
+  my ($l,$x,$s) = $self->dbServerListGet(
+    gamename => $gamename, 
+    results  => 1000,
+    filter => 1
+  );
+  
+  my $pl = 0;
+  for (@{$l}) {$pl += $_->{numplayers}}
+
   # return json data as the response
-  my $json_data = encode_json [$list, {total => $p}];
+  my $json_data = encode_json [$list, {total => $p, players => $pl}];
   print { $self->resFd() } $json_data;
 
   # set content type and allow off-domain access (for example jQuery)
@@ -87,7 +133,34 @@ sub json_serverinfo {
 
   # load additional information if available
   my $details = $self->dbGetServerDetails(id => $info->{id})->[0];
+  
+  # load player data if available
+  my %players = ();
+  my $pl_list = $self->dbGetPlayerInfo(server_id => $info->{id});
+  for (my $i=0; defined $pl_list->[$i]->{player}; $i++) {
+    $players{"player_$i"} = $pl_list->[$i];
+  }
+  
+  # merge 
   $info = { %$info, %$details } if $details;
+  $info = { %$info, %players } if %players;
+
+  # get prefix and mapname
+  my $mapname = lc $info->{mapname};
+  my ($pre,$post);
+     ($pre,$post) = $mapname =~ /^(DM|CTF\-BT|BT|CTF|DOM|AS|JB|TO|SCR|MH)-(.*)/i if ($info->{gamename} eq "ut");
+     ($pre,$post) = $mapname =~ /^(as|ar|coop|coop\d+|ctt|dk|dm|hb|nd)-(.*)/i    if ($info->{gamename} eq "rune");
+     ($pre,$post) = $mapname =~ /^(MPDGT|MPS)-(.*)/i                             if ($info->{gamename} eq "postal2");
+
+  $pre =~ s/(coop\d+)/coop/i;
+  my $prefix = ($pre ? uc $pre : "other");
+  
+  # if map figure exists, use it
+  if (-e "$self->{map_dir}/$info->{gamename}/$prefix/$mapname.jpg") {
+    $info->{mapurl} = "$self->{map_url}/$info->{gamename}/$prefix/$mapname.jpg";
+  }
+  
+  # encode
   my $json_data = encode_json $info;
   my $json_data_size = keys %$info;
 
@@ -156,6 +229,8 @@ sub json_docs {
     end;
     
     ul;
+      li; span class => "code", "s"; txt " - sort by country, hostname, gametype, ip, hostport, numplayers and mapname."; end;
+      li; span class => "code", "o"; txt " - sorting order: 'a' for ascending and 'd' for descending."; end;
       li; span class => "code", "r"; txt " - number of results. Defaults to 50 if not specified. Minimum 1, maximum 1000."; end;
       li; span class => "code", "p"; txt " - page. Show the specified page with results. Total number of entries is included in the result."; end;
       li; span class => "code", "q"; txt " - search query. Identical to the search query on the "; a href => "/servers", "servers"; txt " page. Maximum query length is 90 characters."; end;
@@ -243,7 +318,10 @@ sub json_docs {
       "maxplayers":2965
     }
   ],
-  {"total":"3"}
+  {
+    "total":"3",
+    "players":"0"
+  }
 ]';
     end;
     
@@ -254,7 +332,9 @@ sub json_docs {
       span class => "code", "2";
       txt " entries listed and ";
       span class => "code", "3"; 
-      txt " total entries, implying that there is one more server not shown or on a next page. With the specified number of results specified by the user and the total amount of servers provided by the API, you can calculate how many pages there are to be specified. Every server entry has a number of unsorted keywords. The available keywords are:";
+      txt " total entries, implying that there is one more server not shown or on a next page. With the specified number of results specified by the user and the total amount of servers provided by the API, you can calculate how many pages there are to be specified. If applicable, it also shows the current number of ";
+      span class => "code", "players"; 
+      txt " that are currently in the selected servers. Every server entry has a number of unsorted keywords. The available keywords are:";
     end;
     
     ul;
@@ -275,6 +355,24 @@ sub json_docs {
       li; span class => "code", "diff"; txt " - amount of seconds since this server was updated in our database"; end;
     end;
     p "There are more keywords available for the individual servers. Detailed information about a server is obtained with the Server Information request as described below.";
+
+    
+    h2 "Message of the Day";
+    p;
+      txt "It is possible to pull announcements from the 333networks JSON API with the ";
+      span class => "code", "motd";
+      txt " command. This command returns an html string with the current 333networks announcements for the selected ";
+      span class => "code", "gamename";
+      txt ". This string is suitable for direct JQuery's ";
+      span class => "code", ".html()";
+      txt " function. Additionally, it contains the amount of serves and players as described for the serverlist.";
+    end;
+    
+    div class => "code";
+      ul;
+        li "$self->{url}/json/(.[\w]*)/motd";
+      end;
+    end;
 
     h2 "Server Information request";
     p "Your application or script can also request detailed information for a single server. This is done in a similar way as requesting a server list. The following general regex is used by 333networks:";
@@ -342,6 +440,7 @@ sub json_docs {
   "minplayers":0,
   "mutators":"333networks synchronization, master applet synchronization",
   "mapname":null,
+  "mapurl":"/map/default/333networks.jpg",
   "maxteams":null,
   "fraglimit":null,
   "blacklisted":0,
@@ -363,6 +462,16 @@ sub json_docs {
   "goalteamscore":null,
   "timelimit":null,
   "location":null,
+  "player_1":
+    {
+      "player":"Derp",
+      "ping":150,
+      "frags":6,
+      "team":"0",
+      "mesh":"Male Soldier",
+      "skin":"SoldierSkins.Blkt",
+      "face":"SoldierSkins.Arkon"
+    },
 }';
     end;
     p "The result has a single entry of parameters with a number of unsorted keywords. The available keywords are in addition to the keywords specified in the serverlist:";
@@ -374,6 +483,7 @@ sub json_docs {
       li; span class => "code", "adminname"; txt " - server administrator's name"; end;
       li; span class => "code", "adminemail"; txt " - server administrator's contact information"; end;
       li; span class => "code", "password"; txt " - passworded/locked server"; end;
+      li; span class => "code", "mapurl"; txt " - direct url of the map thumbnail relative from 333networks.com/"; end;
       li; span class => "code", "gamestyle"; txt " - in-game playing style"; end;
       li; span class => "code", "changelevels"; txt " - automatically change levels after match end"; end;
       li; span class => "code", "minplayers"; txt " - number of bots"; end;
@@ -389,8 +499,25 @@ sub json_docs {
       li; span class => "code", "b333ms"; txt " - direct beacon to the masterserver"; end;
       li; span class => "code", "beacon"; txt " - date that the last beacon was received"; end;
       li; span class => "code", "blacklisted"; txt " - server is blacklisted at 333networks"; end;
+      li; span class => "code", "player_n"; txt " - player information as JSON object (see below)"; end;
     end;
     
+    p;
+      txt "The player object ";
+      span class => "code", "player_n";
+      txt " represent the players in the server. This is a JSON object as part of the larger object above. The available keywords are:";
+    end;
+    
+    ul;
+      li; span class => "code", "player"; txt " - the player's name"; end;
+      li; span class => "code", "ping";   txt " - the player's ping"; end;
+      li; span class => "code", "frags";  txt " - number of frags or points"; end;
+      li; span class => "code", "team"; txt " - the player's team name (can be a team number, color or extended team name as string)"; end;
+      li; span class => "code", "mesh"; txt " - the player's model"; end;
+      li; span class => "code", "skin"; txt " - the player's body texture name"; end;
+      li; span class => "code", "face"; txt " - the player's facial texture name"; end;
+    end;
+
     h2 "Feedback";
     p;
       txt "We wrote the JSON API with the intention to make the 333networks masterserver data as accessible as possible. If you feel like any functionality is missing or incorrectly shared, do not hesitate to ";
