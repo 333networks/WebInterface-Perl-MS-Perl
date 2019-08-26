@@ -1,6 +1,10 @@
+# MasterServer-WebInterface
+
+Website for the 333networks MasterServer implementation in Perl.
+
 =========
 
-DESCRIPTION
+# DESCRIPTION
   
   This repository contains software for a web interface to display information 
   obtained by the 333networks MasterServer package for the support of various
@@ -17,12 +21,12 @@ DESCRIPTION
         http://333networks.com/masterserver
         http://wiki.333networks.com/index.php/MasterServer
 
-AUTHOR
+# AUTHOR
   Darkelarious
   http://333networks.com
   darkelarious@333networks.com
 
-REQUIREMENTS
+# REQUIREMENTS
   - Apache/httpd
   - Postgresql, MySQL or SQLite3
   - Perl 5.10 or above
@@ -33,7 +37,7 @@ REQUIREMENTS
       Image::Size
       TUWF (http://dev.yorhel.nl/tuwf)
 
-INSTALL
+# INSTALL
 
   THE MASTER SERVER IS WRITTEN ON LINUX. IF YOU WANT TO RUN THE SOFTWARE IN 
   MICROSOFT WINDOWS OR APPLE OSX, IT MAY NOT WORK WITHOUT MODIFICATIONS.
@@ -43,7 +47,7 @@ INSTALL
   to run this web interface. The contents of this repository can be extracted
   in the same root folder as MasterServer-Perl.
   
-CONFIGURATION
+# CONFIGURATION
 
   The 333networks masterserver interface comes with options. These options are 
   found in configuration file "data/webinterface-config.pl". Comments in the 
@@ -96,7 +100,7 @@ CONFIGURATION
     </Directory>
   </VirtualHost>
 
-KNOWN ISSUES
+# KNOWN ISSUES
   There are a few known issues that will be resolved in future versions. The
   following issues are listed and do not need to be reported.
   
@@ -110,5 +114,5 @@ KNOWN ISSUES
   and game icons are located at another repository on git.333networks.com and
   are available for all supported packages.
     
-COPYING
+# COPYING
   See COPYING file
