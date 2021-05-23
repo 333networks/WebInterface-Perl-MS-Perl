@@ -10,7 +10,6 @@ CHANGELOG
   * JSON API links directly to the recommended map thumbnail if available, or 
     to default thumbnail if not available.
   
-  
 3.0.4
   * fix use of uninitialized values in string output
 
